@@ -3,7 +3,7 @@ package handlers
 // TODO:
 // - add event type handling
 // - print out the event types and their details as they roll in
-// - add tests
+// - add tests (handling each type of event, bad params, completing a struct)
 
 import (
 	"encoding/json"
@@ -41,10 +41,10 @@ type ClientEvent struct {
 	CopiedFields map[string]bool `json:"copiedFields"`
 
 	// resize event
-	FromWidth  string `json:"fromWidth"`
-	FromHeight string `json:"fromHeight"`
-	ToWidth    string `json:"toWidth"`
-	ToHeight   string `json:"toHeight"`
+	FromWidth  json.Number `json:"fromWidth,Number"`
+	FromHeight json.Number `json:"fromHeight,Number"`
+	ToWidth    json.Number `json:"toWidth,Number"`
+	ToHeight   json.Number `json:"toHeight,Number"`
 
 	// submitted event
 	Submitted bool `json:"submitted"`
@@ -56,9 +56,7 @@ var behaviours = map[string]func(ClientEvent){
 	"submitted":    formSubmittedBehaviour,
 }
 
-var store = storage.DataStore{
-	Items: make(map[string]interface{}),
-}
+var store = storage.New()
 
 func ReceiveNewEvent(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -120,8 +118,8 @@ func resizedWindowBehaviour(event ClientEvent) {
 	// update the ResizedFrom and ResizedTo properties
 	// TODO: need to find a nicer way to work with the store
 	if data, ok := savedData.(Data); ok {
-		data.ResizeFrom = Dimension{event.FromWidth, event.FromHeight}
-		data.ResizeTo = Dimension{event.ToWidth, event.ToHeight}
+		data.ResizeFrom = Dimension{string(event.FromWidth), string(event.FromHeight)}
+		data.ResizeTo = Dimension{string(event.ToWidth), string(event.ToHeight)}
 		savedData = data
 	}
 

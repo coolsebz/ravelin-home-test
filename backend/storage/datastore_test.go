@@ -12,9 +12,7 @@ type TestData struct {
 }
 
 func TestStore(t *testing.T) {
-	testStore := DataStore{
-		Items: make(map[string]interface{}),
-	}
+	testStore := New()
 
 	// testing for a faulty get on the empty data store
 	item, ok := testStore.Get("randomKey")
